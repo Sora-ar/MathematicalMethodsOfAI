@@ -101,7 +101,7 @@ def mutate(offspring, mutation_rate=0.1, x_bounds=(-1, 5), y_bounds=(-3, 1)):
 def genetic_algorithm(pop_size=50, generations=500, x_bounds=(-1, 5), y_bounds=(-3, 1)):
     """
     Реалізує генетичний алгоритм для оптимізації функції. Виконує ітерації генетичного алгоритму для максимізації
-    заданої функції, веде статистику про еволюцію популяції і будує графіки результатів.
+    заданої функції, веде статистику про еволюцію популяції й будує графіки результатів.
 
     :param pop_size: Кількість особин в популяції. Має значення за замовчуванням 50.
     :param generations: Кількість ітерацій (поколінь) для виконання алгоритму. Має значення за замовчуванням 500.
@@ -111,6 +111,7 @@ def genetic_algorithm(pop_size=50, generations=500, x_bounds=(-1, 5), y_bounds=(
     """
     population = create_population(pop_size, x_bounds, y_bounds)
     best_values = []
+    fitness_history = []
     evolution_data = []
     average_values = []
     x_values = []
@@ -119,7 +120,13 @@ def genetic_algorithm(pop_size=50, generations=500, x_bounds=(-1, 5), y_bounds=(
     for generation in range(generations):
         # Оцінка придатності
         fitness = np.array([fitness_function(ind[0], ind[1]) for ind in population])
-        best_values.append(np.max(fitness))
+        fitness_history.append(fitness.copy())
+        best_fitness = np.max(fitness)  # Найкраще значення функції придатності
+        best_values.append(best_fitness)
+        average_values.append(np.mean(fitness))
+
+        # Виведення найкращого значення на поточній ітерації
+        print(f"Ітерація {generation + 1}: Найкраще значення функції = {best_fitness:.4f}")
 
         # Значення x та y популяції
         evolution_data.append(population.copy())
@@ -138,21 +145,16 @@ def genetic_algorithm(pop_size=50, generations=500, x_bounds=(-1, 5), y_bounds=(
 
     # Визначення найкращого рішення
     fitness = np.array([fitness_function(ind[0], ind[1]) for ind in population])
+    fitness_history.append(fitness.copy())
     best_individual = population[np.argmax(fitness)]
 
     print(f"Найкраща точка: x = {best_individual[0]:.2f}, y = {best_individual[1]:.2f}")
-    print(f"Максимальне значення функції: {np.max(fitness):.2f}")
-    print("Всі значення функції:")
-    for i, value in enumerate(fitness):
-        print(f"Значення {i + 1}: {value:.2f}")
+    print(f"Максимальне значення функції: {np.max(fitness_history):.2f}")
 
-    for generation in range(generations):
-        fitness = np.array([fitness_function(ind[0], ind[1]) for ind in population])
-        average_values.append(np.mean(fitness))
 
     for generation in range(generations):
         x_values.append(np.mean(population[:, 0]))  # Середнє значення x в популяції
-        y_values.append(np.mean(population[:, 1]))  # Середнє значення y в популяції
+        y_values.append(np.mean(population[:, 1]))  # Середнє значення у в популяції
 
     # Найкраще значення функції
     plt.plot(best_values)
